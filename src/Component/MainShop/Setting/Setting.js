@@ -10,7 +10,7 @@ export default class Setting extends Component {
   render() {
     return (
       <View>
-        <Text> Setting </Text>
+        <Text> Setting Nhut dep trai</Text>
       </View>
     );
   }

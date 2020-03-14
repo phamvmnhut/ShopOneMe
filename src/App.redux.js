@@ -67,7 +67,7 @@ const initDataReducer = (state = initDatadefault, action) => {
     case 'FETCH_SUCCEEDED':
       return {...state, data: action.receivedData};
     case 'FETCH_FAILED':
-      return {};
+      return {...state, data: initDatadefault};
     default:
       return state;
   }
