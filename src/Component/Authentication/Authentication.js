@@ -40,7 +40,27 @@ class Authentication extends Component {
       email,
       password,
     };
-    this.props.onLogin(data);
+    fetch(`${host}login.php`, {
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(res => res.text())
+      .then(res => {
+        if (res != 'SAI_THONG_TIN_DANG_NHAP') {
+          Alert.alert('Login secceed');
+          this.GotoBackMain();
+          this.props.onLogin(res);
+        } else {
+          //change if res err sent
+          Alert.alert('Err in Login');
+          this.setState({password: ''});
+        }
+      })
+      .catch(err => Alert.alert('Err in Login'));
   }
   RegisterClick() {
     const {name, email, password} = this.state;
@@ -222,8 +242,8 @@ export default connect(
     return {
       onLogin: data => {
         dispatch({
-          type: 'LOGIN_USER',
-          inforLogin: data,
+          type: 'LOGIN',
+          resLogin: data,
         });
       },
     };

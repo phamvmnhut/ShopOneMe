@@ -1,3 +1,3 @@
 module.exports = {
-  host: 'http://192.168.1.9:8080/app/',
+  host: 'https://api-shop-online.000webhostapp.com/',
 };

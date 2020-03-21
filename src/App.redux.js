@@ -77,12 +77,10 @@ const userdefault = {
   isLogin: false,
   user: {},
   token: '',
-  secceeded: false,
-  error: [],
 };
 const userReducer = (state = userdefault, action) => {
   switch (action.type) {
-    case 'LOGIN_SUCCEEDED':
+    case 'LOGIN':
       console.log(
         'user in userReducer: ' + JSON.stringify(action.resLogin.user),
       );
@@ -91,19 +89,13 @@ const userReducer = (state = userdefault, action) => {
         isLogin: true,
         user: action.resLogin.user,
         token: action.resLogin.token,
-        secceeded: true,
-        error: [],
       };
-    case 'LOGIN_FAIL':
-      return {...state, secceeded: false, error: action.error};
     case 'LOGOUT_USER':
       return {
         ...state,
         isLogin: false,
         user: {},
         token: '',
-        secceeded: false,
-        error: [],
       };
     default:
       return state;
@@ -113,7 +105,6 @@ const userReducer = (state = userdefault, action) => {
 let cartdefault = {
   cart: [],
 };
-//getCart().then(res => (cartdefault = {cart: res}));
 
 const cartReducer = (state = cartdefault, action) => {
   const cartstate = state.cart;

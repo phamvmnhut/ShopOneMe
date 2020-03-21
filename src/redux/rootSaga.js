@@ -32,34 +32,6 @@ function* watchFetchDataInit() {
   yield takeLatest('INIT_DATA', fetchDatainit);
 }
 
-//send POST request to add new Movie
-function* loginUserAPI(infoLogin) {
-  const response = yield fetch(`${host}login.php`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(infoLogin),
-  });
-  const resLogin = yield response.status === 200 ? response.json() : {};
-  return resLogin;
-}
-
-//Add new movie
-function* loginUser(action) {
-  try {
-    const result = yield loginUserAPI(action.inforLogin);
-    yield put({type: 'LOGIN_SUCCEEDED', resLogin: result});
-  } catch (error) {
-    yield put({type: 'LOGIN_FAIL', error});
-    //do nothing
-  }
-}
-function* watchLoginUser() {
-  yield takeLatest('LOGIN_USER', loginUser);
-}
-
 function* getCart() {
   try {
     const value = yield AsyncStorage.getItem('@cart');
@@ -91,6 +63,5 @@ function* watchCartStorage() {
 
 export default function* rootSaga() {
   yield fork(watchFetchDataInit);
-  yield fork(watchLoginUser);
   yield fork(watchCartStorage);
 }
