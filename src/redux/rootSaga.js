@@ -1,5 +1,5 @@
 //Saga effects
-import {put, takeLatest, fork} from 'redux-saga/effects';
+import {put, takeLatest, fork, call} from 'redux-saga/effects';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -88,7 +88,6 @@ function* checkToken() {
       body: JSON.stringify({token}),
     });
     const resLogin = yield res.status === 200 ? res.json() : {};
-    console.log(resLogin);
     yield put({
       type: 'LOGIN',
       resLogin: resLogin,
@@ -115,13 +114,21 @@ function* refreshToken() {
       console.log('Chua co token');
     }
     const newToken = yield getNewToken(token);
+    yield AsyncStorage.setItem('@token', newToken);
+    console.log('New Token: ', newToken);
   } catch (e) {
-    console.log(e);
+    console.log('EER in refresh Token: ', e);
   }
 }
 
+function* tokenAllTask() {
+  yield checkToken();
+  //function* not using in ssssetInterval
+  //yield call(setInterval, refreshToken, 1000);
+}
+
 function* watchUserToken() {
-  yield takeLatest('INIT_USER', checkToken);
+  yield takeLatest('INIT_USER', tokenAllTask);
 }
 
 export default function* rootSaga() {

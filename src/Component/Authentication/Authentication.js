@@ -88,11 +88,6 @@ class Authentication extends Component {
       })
       .catch(err => Alert.alert('Err in register'));
   }
-  componentDidUpdate() {
-    if (this.props.login.isLogin == true) {
-      this.props.navigation.goBack();
-    }
-  }
   render() {
     const {
       wrapper,

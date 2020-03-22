@@ -103,6 +103,11 @@ const userReducer = (state = userdefault, action) => {
         user: {},
         token: '',
       };
+    case 'CHANCE_INFO':
+      return {
+        ...state,
+        user: action.user,
+      };
     default:
       return state;
   }

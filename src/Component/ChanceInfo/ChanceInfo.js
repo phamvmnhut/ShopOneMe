@@ -6,11 +6,14 @@ import {
   Image,
   StyleSheet,
   TextInput,
+  Alert,
 } from 'react-native';
 
 import {connect} from 'react-redux';
 
 import backSpecial from '../../media/back_white.png';
+
+import {host} from '../../Api/hostname';
 
 class ChangeInfo extends Component {
   constructor(props) {
@@ -27,14 +30,31 @@ class ChangeInfo extends Component {
   }
   onClickChancefo() {
     const {txtName, txtAddress, txtPhone} = this.state;
-    const data = {name: txtName, address: txtAddress, phone: txtPhone};
-    this.props.onChangeInfor(data);
+    const token = this.props.user.token;
+    const data = {
+      token: token,
+      name: txtName,
+      address: txtAddress,
+      phone: txtPhone,
+    };
+    fetch(`${host}change_info.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(res => res.json())
+      .then(user => {
+        this.props.onChangeInfor(user);
+        Alert.alert('ChangeInfo Succeeded');
+        this.GotoBackMain();
+      })
+      .catch(err => Alert.alert('Err in ChangeInfo'));
   }
   componentDidMount() {
     const {name, address, phone} = this.props.user.user;
-    console.log(
-      'infor User in ChanceInfo component: ' + JSON.stringify(this.props.user),
-    );
     this.setState({
       txtName: name,
       txtAddress: address,
@@ -164,7 +184,7 @@ export default connect(
       onChangeInfor: data => {
         dispatch({
           type: 'CHANCE_INFO',
-          data: data,
+          user: data,
         });
       },
     };
