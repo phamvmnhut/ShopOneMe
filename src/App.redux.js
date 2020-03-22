@@ -18,6 +18,13 @@ const saveCart = async cartArray => {
     console.log('Error in SaveCart: ', e);
   }
 };
+const saveToken = async token => {
+  try {
+    await AsyncStorage.setItem('@token', token);
+  } catch (e) {
+    console.log('Error in SaveToken: ', e);
+  }
+};
 
 // default data or store in local
 let initDatadefault = {
@@ -81,9 +88,7 @@ const userdefault = {
 const userReducer = (state = userdefault, action) => {
   switch (action.type) {
     case 'LOGIN':
-      console.log(
-        'user in userReducer: ' + JSON.stringify(action.resLogin.user),
-      );
+      saveToken(action.resLogin.token);
       return {
         ...state,
         isLogin: true,
@@ -91,6 +96,7 @@ const userReducer = (state = userdefault, action) => {
         token: action.resLogin.token,
       };
     case 'LOGOUT_USER':
+      saveToken('');
       return {
         ...state,
         isLogin: false,

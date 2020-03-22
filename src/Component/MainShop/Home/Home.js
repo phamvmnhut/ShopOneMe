@@ -12,11 +12,19 @@ import Header from '../Header';
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      isLoading: false,
+    };
   }
   componentDidMount() {
     this.props.dataInit();
     this.props.cartInit();
+    this.props.userInit();
+  }
+  textSearchChange(text) {
+    if (text != '') {
+      this.setState({isLoading: true});
+    }
   }
   render() {
     const {data} = this.props.data;
@@ -45,6 +53,10 @@ export default connect(
       cartInit: data =>
         dispatch({
           type: 'CART_STORAGE_GET',
+        }),
+      userInit: data =>
+        dispatch({
+          type: 'INIT_USER',
         }),
     };
   },

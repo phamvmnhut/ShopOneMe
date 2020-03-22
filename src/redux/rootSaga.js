@@ -61,7 +61,71 @@ function* watchCartStorage() {
   yield takeLatest('CART_STORAGE_GET', getCartStorage);
 }
 
+function* getTokenStorage() {
+  console.log('TokenInit : get Storage');
+  try {
+    const value = yield AsyncStorage.getItem('@token');
+    if (value !== null) {
+      return value;
+    }
+    return '';
+  } catch (error) {
+    // Error retrieving data
+    console.log('Err in getToken: ', error);
+    return '';
+  }
+}
+
+function* checkToken() {
+  try {
+    const token = yield getTokenStorage();
+    const res = yield fetch(`${host}check_login.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({token}),
+    });
+    const resLogin = yield res.status === 200 ? res.json() : {};
+    console.log(resLogin);
+    yield put({
+      type: 'LOGIN',
+      resLogin: resLogin,
+    });
+  } catch (error) {
+    yield put({type: 'LOGIN_FAIL', error});
+  }
+}
+
+function* getNewToken(token) {
+  fetch(`${host}refresh_token.php`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({token}),
+  }).then(res => res.text());
+}
+function* refreshToken() {
+  try {
+    const token = yield getTokenStorage();
+    if (token === '' || token === 'TOKEN_KHONG_HOP_LE') {
+      console.log('Chua co token');
+    }
+    const newToken = yield getNewToken(token);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function* watchUserToken() {
+  yield takeLatest('INIT_USER', checkToken);
+}
+
 export default function* rootSaga() {
   yield fork(watchFetchDataInit);
   yield fork(watchCartStorage);
+  yield fork(watchUserToken);
 }

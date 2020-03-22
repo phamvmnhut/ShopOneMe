@@ -35,9 +35,7 @@ export default class ListProduct extends Component {
       .then(res => res.json())
       .then(res => {
         this.setState({data: res});
-        console.log(JSON.stringify(res));
       });
-    console.log('heloo');
   }
   render() {
     const {

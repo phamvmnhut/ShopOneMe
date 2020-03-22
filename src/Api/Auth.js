@@ -20,21 +20,6 @@ const register = (email, name, password) =>
     body: JSON.stringify({email, name, password}),
   }).then(res => res.text());
 
-/*
-  const getToken = async () => {
-  try {
-    const value = await AsyncStorage.getItem('@token');
-    if (value !== null) {
-      return value;
-    }
-    return '';
-  } catch (error) {
-    // Error retrieving data
-    return '';
-  }
-};
-*/
-
 const getNewToken = token =>
   fetch(`${host}refresh_token.php`, {
     method: 'POST',

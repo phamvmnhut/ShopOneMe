@@ -48,7 +48,7 @@ class Authentication extends Component {
       },
       body: JSON.stringify(data),
     })
-      .then(res => res.text())
+      .then(res => res.json())
       .then(res => {
         if (res != 'SAI_THONG_TIN_DANG_NHAP') {
           Alert.alert('Login secceed');
