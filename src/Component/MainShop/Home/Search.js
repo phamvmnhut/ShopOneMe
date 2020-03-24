@@ -3,14 +3,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  ScrollView,
   View,
   Image,
   Dimensions,
+  FlatList,
+  Alert,
 } from 'react-native';
 
-import sp1 from '../../../Picture/sp3.jpeg';
-import sp4 from '../../../Picture/sp4.jpeg';
+import {host} from '../../../Api/hostname';
 
 function toTitleCase(str) {
   return str.replace(
@@ -19,11 +19,34 @@ function toTitleCase(str) {
   );
 }
 
-export default class SearchView extends Component {
-  gotoDetail() {
-    this.props.navigation.push('Product');
+export default class Search extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: [],
+    };
+  }
+  gotoDetail(pro) {
+    this.props.navigation.push('Product', {pro: pro});
+  }
+  componentDidMount() {
+    const key = this.props.keysearch;
+    fetch(`${host}search.php?key=${key}`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.length == 0) {
+          throw 'Not found';
+        }
+        this.setState({data: res});
+      })
+      .catch(() => {
+        this.setState({data: []});
+        Alert.alert('Not found!, please insert again');
+      });
   }
   render() {
+    console.log('render in Search Comp');
+    console.log('Key: ', this.props.keysearch);
     const {
       product,
       mainRight,
@@ -35,59 +58,37 @@ export default class SearchView extends Component {
       txtShowDetail,
       showDetailContainer,
       wrapper,
+      divide,
     } = styles;
     return (
-      <ScrollView style={wrapper}>
-        <View style={product}>
-          <Image source={sp1} style={productImage} />
-          <View style={mainRight}>
-            <Text style={txtName}>{toTitleCase('black dress')}</Text>
-            <Text style={txtPrice}>100$</Text>
-            <Text style={txtMaterial}>Material Fur</Text>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={txtColor}>Color white</Text>
-              <View
-                style={{
-                  height: 15,
-                  width: 15,
-                  backgroundColor: 'white',
-                  borderRadius: 15,
-                  marginLeft: 10,
-                }}
+      <View style={wrapper}>
+        <FlatList
+          data={this.state.data}
+          renderItem={({item}) => (
+            <View style={product}>
+              <Image
+                source={{uri: `${host}images/product/${item.images[0]}`}}
+                style={productImage}
               />
-            </View>
-            <TouchableOpacity style={showDetailContainer}>
-              <Text style={txtShowDetail}>SHOW DETAILS</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={product}>
-          <Image source={sp4} style={productImage} />
-          <View style={mainRight}>
-            <Text style={txtName}>{toTitleCase('black dress')}</Text>
-            <Text style={txtPrice}>100$</Text>
-            <Text style={txtMaterial}>Material Fur</Text>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={txtColor}>Color white</Text>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={txtColor}>Color white</Text>
-                <View
-                  style={{
-                    height: 15,
-                    width: 15,
-                    backgroundColor: 'white',
-                    borderRadius: 15,
-                    marginLeft: 10,
-                  }}
-                />
+              <View style={mainRight}>
+                <Text style={txtName}>{toTitleCase(item.name)}</Text>
+                <Text style={txtPrice}>{item.price}</Text>
+                <Text style={txtMaterial}>Material {item.material}</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={txtColor}>Color {item.color}</Text>
+                  <View style={divide} />
+                </View>
+                <TouchableOpacity
+                  style={showDetailContainer}
+                  onPress={() => this.gotoDetail(item)}>
+                  <Text style={txtShowDetail}>SHOW DETAILS</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={showDetailContainer}>
-              <Text style={txtShowDetail}>SHOW DETAILS</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+          )}
+          keyExtractor={item => item.id}
+        />
+      </View>
     );
   }
 }
@@ -169,5 +170,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'flex-end',
     marginTop: 100,
+  },
+  divide: {
+    height: 15,
+    width: 15,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    marginLeft: 10,
   },
 });

@@ -6,6 +6,7 @@ import {connect} from 'react-redux';
 import Collection from './Collection';
 import TopProduct from './TopProduct';
 //import Category from './Collection';
+import Search from './Search';
 
 import Header from '../Header';
 
@@ -13,7 +14,8 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false,
+      isSearching: false,
+      search: '',
     };
   }
   componentDidMount() {
@@ -21,18 +23,40 @@ class Home extends Component {
     this.props.cartInit();
     this.props.userInit();
   }
-  textSearchChange(text) {
-    if (text != '') {
-      this.setState({isLoading: true});
-    }
+  onSearch(search) {
+    this.setState({
+      search: search,
+      isSearching: true,
+    });
+  }
+  offSearch() {
+    this.setState({isSearching: false});
+    this.setState({search: ''});
   }
   render() {
     const {data} = this.props.data;
+    console.log('render');
     return (
       <View style={{flex: 1}}>
-        <Header navigation={this.props.navigation} />
-        <Collection type={data.type} navigation={this.props.navigation} />
-        <TopProduct product={data.product} navigation={this.props.navigation} />
+        <Header
+          navigation={this.props.navigation}
+          onSearch={this.onSearch.bind(this)}
+          offSearch={this.offSearch.bind(this)}
+        />
+        {!this.state.isSearching ? (
+          <View style={{flex: 1}}>
+            <Collection type={data.type} navigation={this.props.navigation} />
+            <TopProduct
+              product={data.product}
+              navigation={this.props.navigation}
+            />
+          </View>
+        ) : (
+          <Search
+            keysearch={this.state.search}
+            navigation={this.props.navigation}
+          />
+        )}
       </View>
     );
   }
@@ -61,3 +85,10 @@ export default connect(
     };
   },
 )(Home);
+
+/*
+ if (!this.state.isSearching) {
+      this.setState({isSearching: true});
+    }
+    this.setState({search});
+*/
