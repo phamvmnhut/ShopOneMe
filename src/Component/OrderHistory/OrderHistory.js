@@ -6,25 +6,52 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  ScrollView,
+  FlatList,
 } from 'react-native';
 import backSpecial from '../../media/back_white.png';
-//import getOrderHistory from '../../api/getOrderHistory';
-//import getToken from '../../api/getToken';
+
+import AsyncStorage from '@react-native-community/async-storage';
+
+import {host} from '../../Api/hostname';
+
+async function getTokenStorage() {
+  try {
+    const value = await AsyncStorage.getItem('@token');
+    if (value !== null) {
+      return value;
+    }
+    return '';
+  } catch (error) {
+    // Error retrieving data
+    console.log('Err in getToken: ', error);
+    return '';
+  }
+}
 
 export default class OrderHistory extends Component {
   constructor(props) {
     super(props);
     this.state = {arrOrder: []};
   }
-
-  // componentDidMount() {
-  //   getToken()
-  //     .then(token => getOrderHistory(token))
-  //     .then(arrOrder => this.setState({arrOrder}))
-  //     .catch(err => console.log(err));
-  // }
-
+  async onGetOrder() {
+    const token = await getTokenStorage();
+    return fetch(`${host}order_history.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({token}),
+    })
+      .then(res => res.json())
+      .catch(err => console.log('ERR in send order: ', err));
+  }
+  componentDidMount() {
+    this.onGetOrder()
+      .then(arrOrder => arrOrder.reverse())
+      .then(newArr => this.setState({arrOrder: newArr}))
+      .catch(err => console.log(err));
+  }
   goBackToMain() {
     const {navigation} = this.props;
     navigation.goBack();
@@ -48,9 +75,10 @@ export default class OrderHistory extends Component {
           </TouchableOpacity>
         </View>
         <View style={body}>
-          <ScrollView>
-            {this.state.arrOrder.map(e => (
-              <View style={orderRow} key={e.id}>
+          <FlatList
+            data={this.state.arrOrder}
+            renderItem={({item}) => (
+              <View style={orderRow} key={item.id}>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -59,7 +87,7 @@ export default class OrderHistory extends Component {
                   <Text style={{color: '#9A9A9A', fontWeight: 'bold'}}>
                     Order id:
                   </Text>
-                  <Text style={{color: '#2ABB9C'}}>ORD{e.id}</Text>
+                  <Text style={{color: '#2ABB9C'}}>ORD{item.id}</Text>
                 </View>
                 <View
                   style={{
@@ -69,7 +97,7 @@ export default class OrderHistory extends Component {
                   <Text style={{color: '#9A9A9A', fontWeight: 'bold'}}>
                     OrderTime:
                   </Text>
-                  <Text style={{color: '#C21C70'}}>{e.date_order}</Text>
+                  <Text style={{color: '#C21C70'}}>{item.date_order}</Text>
                 </View>
                 <View
                   style={{
@@ -80,7 +108,7 @@ export default class OrderHistory extends Component {
                     Status:
                   </Text>
                   <Text style={{color: '#2ABB9C'}}>
-                    {e.status ? 'Completed' : 'Pending'}
+                    {item.status ? 'Completed' : 'Pending'}
                   </Text>
                 </View>
                 <View
@@ -92,12 +120,13 @@ export default class OrderHistory extends Component {
                     Total:
                   </Text>
                   <Text style={{color: '#C21C70', fontWeight: 'bold'}}>
-                    {e.total}$
+                    {item.total}$
                   </Text>
                 </View>
               </View>
-            ))}
-          </ScrollView>
+            )}
+            keyExtractor={item => item.id.toString()}
+          />
         </View>
       </View>
     );
