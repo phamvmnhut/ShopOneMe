@@ -10,7 +10,8 @@ export default class Setting extends Component {
   render() {
     return (
       <View>
-        <Text> Setting</Text>
+        <Text style={{fontSize: 30, color: '#63ed07'}}> Setting Component</Text>
+        <Text>Cảm ơn bạn đã chuyển qua đến tận tab này :))</Text>
       </View>
     );
   }

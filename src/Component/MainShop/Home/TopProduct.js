@@ -88,15 +88,3 @@ const style = StyleSheet.create({
     width: (width - 50) / 2 - 10,
   },
 });
-
-// {product.map(e => {
-//   const url =
-//     'http://192.168.56.1:8080/app/images/product/' + e.images[0];
-//   return (
-//     <TouchableOpacity style={sp} onPress={() => this.gotoProduct(e)}>
-//       <Image source={{uri: url}} style={pro} />
-//       <Text>{e.name.toUpperCase()}</Text>
-//       <Text>{e.price}</Text>
-//     </TouchableOpacity>
-//   );
-// }

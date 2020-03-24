@@ -20,6 +20,7 @@ class MenuMain extends Component {
     this.state = {};
   }
   goMain() {
+    this.props.navigation.navigate('Main');
     this.props.navigation.closeDrawer();
   }
   goOrder() {
