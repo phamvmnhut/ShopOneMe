@@ -7,9 +7,11 @@ import {
   StyleSheet,
   Image,
   FlatList,
+  Alert,
 } from 'react-native';
 
 import {connect} from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import {host} from '../../../Api/hostname';
 
@@ -19,10 +21,45 @@ function toTitleCase(str) {
     txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
   );
 }
+async function getTokenStorage() {
+  try {
+    const value = await AsyncStorage.getItem('@token');
+    if (value !== null) {
+      return value;
+    }
+    return '';
+  } catch (error) {
+    // Error retrieving data
+    console.log('Err in getToken: ', error);
+    return '';
+  }
+}
 
 class Cart extends Component {
   gotoDetail(pro) {
     this.props.navigation.push('Product', {pro: pro});
+  }
+  async onSendOrder(cart) {
+    const token = await getTokenStorage();
+    const cartDetail = cart.map(e => ({id: e.pro.id, quantity: e.total}));
+    fetch(`${host}cart.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({token, arrayDetail: cartDetail}),
+    })
+      .then(res => res.text())
+      .then(res => {
+        if (res != 'THEM_THANH_CONG') throw 'Add fail';
+        this.props.sendOrder();
+        Alert.alert('Order Succeeded, check your Order in ORDER HISTORY');
+      })
+      .catch(err => {
+        console.log('ERR in send order: ', err);
+        Alert.alert('Order fail, check login user');
+      });
   }
   render() {
     const {
@@ -100,7 +137,9 @@ class Cart extends Component {
           />
         </View>
         <View style={Total}>
-          <TouchableOpacity style={checkoutButton}>
+          <TouchableOpacity
+            style={checkoutButton}
+            onPress={() => this.onSendOrder(cart)}>
             <Text style={checkoutTitle}>TOTAL {total}$ CHECKOUT NOW</Text>
           </TouchableOpacity>
         </View>
@@ -219,6 +258,10 @@ export default connect(
         dispatch({
           type: 'REMOVE_CART',
           idpro: id_pro,
+        }),
+      sendOrder: () =>
+        dispatch({
+          type: 'SENDORDER',
         }),
     };
   },
