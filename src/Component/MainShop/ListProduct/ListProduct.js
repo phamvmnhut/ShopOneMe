@@ -15,12 +15,53 @@ const {height} = Dimensions.get('screen');
 
 import back from '../../../media/backList.png';
 
+function fetchUser(typeID, page) {
+  this.setState({loading: false});
+  fetch(`${host}product_by_type.php?id_type=${typeID}&page=${page}`)
+    .then(res => res.json())
+    .then(res => {
+      let listData = this.state.data;
+      let data = listData
+        .concat(res.data.items) //concate list with response
+        .this.setState({loading: false, data: data});
+    })
+    .catch(error => {
+      this.setState({loading: false, error: 'Something just went wrong'});
+    });
+}
+
 export default class ListProduct extends Component {
   constructor(props) {
     super(props);
+    this.page = 1;
     this.state = {
+      loading: false, // user list loading
+      isRefreshing: false, //for pull to refresh
       data: [],
     };
+  }
+
+  handleLoadMore() {
+    const typeID = this.props.navigation.state.params.colecID;
+    if (this.page === 0) {
+      return;
+    }
+    this.page = this.page + 1;
+    fetch(`${host}product_by_type.php?id_type=${typeID}&page=${this.page}`)
+      .then(res => res.json())
+      .then(res => {
+        if (!res[0]) {
+          throw 'fetch none data';
+        }
+        const data = this.state.data;
+        const newdata = data.concat(res);
+        this.setState({data: newdata});
+      })
+      .catch(err => {
+        if (err == 'fetch none data') {
+          this.page = 0;
+        }
+      });
   }
 
   goBack() {
@@ -31,7 +72,7 @@ export default class ListProduct extends Component {
   }
   componentDidMount() {
     const typeID = this.props.navigation.state.params.colecID;
-    fetch(`${host}product_by_type.php?id_type=${typeID}&page=${1}`)
+    fetch(`${host}product_by_type.php?id_type=${typeID}&page=${this.page}`)
       .then(res => res.json())
       .then(res => {
         this.setState({data: res});
@@ -75,6 +116,8 @@ export default class ListProduct extends Component {
             </View>
           )}
           keyExtractor={item => item.id.toString()}
+          onEndReachedThreshold={0.4}
+          onEndReached={this.handleLoadMore.bind(this)}
         />
       </View>
     );

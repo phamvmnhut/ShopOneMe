@@ -164,6 +164,7 @@ const cartReducer = (state = cartdefault, action) => {
       break;
     case 'SENDORDER':
       newstate = cartdefault;
+      saveCart(newstate.cart);
       break;
     default:
       newstate = state;
