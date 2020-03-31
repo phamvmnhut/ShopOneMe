@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Alert, Text} from 'react-native';
+import {View} from 'react-native';
 
 import {connect} from 'react-redux';
 
@@ -13,29 +13,24 @@ import Header from '../Header';
 class Home extends Component {
   constructor(props) {
     super(props);
+    this.isSearching = false;
     this.state = {
-      isSearching: false,
       search: '',
     };
   }
-  componentDidMount() {
-    this.props.dataInit();
-    this.props.cartInit();
-    this.props.userInit();
-  }
   onSearch(search) {
+    this.isSearching = true;
     this.setState({
       search: search,
-      isSearching: true,
     });
   }
   offSearch() {
-    this.setState({isSearching: false});
+    this.isSearching = false;
     this.setState({search: ''});
   }
   render() {
     const {data} = this.props.data;
-    console.log('render');
+    console.log('render in home');
     return (
       <View style={{flex: 1}}>
         <Header
@@ -43,7 +38,7 @@ class Home extends Component {
           onSearch={this.onSearch.bind(this)}
           offSearch={this.offSearch.bind(this)}
         />
-        {!this.state.isSearching ? (
+        {!this.isSearching ? (
           <View style={{flex: 1}}>
             <Collection type={data.type} navigation={this.props.navigation} />
             <TopProduct
@@ -85,10 +80,3 @@ export default connect(
     };
   },
 )(Home);
-
-/*
- if (!this.state.isSearching) {
-      this.setState({isSearching: true});
-    }
-    this.setState({search});
-*/

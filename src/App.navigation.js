@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {createAppContainer} from 'react-navigation';
+import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
 import {createDrawerNavigator} from 'react-navigation-drawer';
@@ -21,6 +21,8 @@ import MenuMain from './Component/MenuMain';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CartWithBadge from './Component/MainShop/Cart/CartWithBadge';
+
+import StartComp from './Component/StartComp';
 
 const CartStack = createStackNavigator(
   {
@@ -139,5 +141,13 @@ const AppDrawer = createDrawerNavigator(
     contentComponent: MenuMain,
   },
 );
-
-export default createAppContainer(AppDrawer);
+const AppFlow = createSwitchNavigator(
+  {
+    start: StartComp,
+    main: AppDrawer,
+  },
+  {
+    initialRouteName: 'start',
+  },
+);
+export default createAppContainer(AppFlow);
