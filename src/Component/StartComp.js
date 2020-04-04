@@ -7,12 +7,14 @@ class StartComp extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.props.dataInit();
-    this.props.cartInit();
-    this.props.userInit();
+    this.props.initapp();
   }
-  componentDidMount() {
-    this.props.navigation.navigate('main');
+  componentDidUpdate() {
+    const {appstate} = this.props;
+    console.log('START APP: ', appstate);
+    if (appstate.init) {
+      this.props.navigation.navigate('main');
+    }
   }
   render() {
     return (
@@ -20,6 +22,7 @@ class StartComp extends Component {
         <Text style={styles.text}>Start Green </Text>
         <View style={styles.devide} />
         <Text style={styles.text}> Shop One Me </Text>
+        <Text>Loading ...</Text>
       </View>
     );
   }
@@ -28,7 +31,7 @@ class StartComp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   devide: {
@@ -43,21 +46,15 @@ const styles = StyleSheet.create({
 
 export default connect(
   state => {
-    return {};
+    return {
+      appstate: state.appstate,
+    };
   },
   dispatch => {
     return {
-      dataInit: data =>
+      initapp: () =>
         dispatch({
-          type: 'INIT_DATA',
-        }),
-      cartInit: data =>
-        dispatch({
-          type: 'CART_STORAGE_GET',
-        }),
-      userInit: data =>
-        dispatch({
-          type: 'INIT_USER',
+          type: 'INIT_APP',
         }),
     };
   },

@@ -237,8 +237,8 @@ export default connect(
     return {
       onLogin: data => {
         dispatch({
-          type: 'LOGIN',
-          resLogin: data,
+          type: 'LOGIN_SECCEEDED',
+          payload: data,
         });
       },
     };
