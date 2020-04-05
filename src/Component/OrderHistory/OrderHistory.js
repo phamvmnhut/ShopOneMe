@@ -1,48 +1,22 @@
 import React, {Component} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-} from 'react-native';
-import backSpecial from '../../media/back_white.png';
+import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
 
-import AsyncStorage from '@react-native-community/async-storage';
+import {COLOR} from '../../Constants/color';
 
-import {host} from '../../Api/hostname';
+import {connect} from 'react-redux';
 
-async function getTokenStorage() {
-  try {
-    const value = await AsyncStorage.getItem('@token');
-    if (value !== null) {
-      return value;
-    }
-    return '';
-  } catch (error) {
-    // Error retrieving data
-    console.log('Err in getToken: ', error);
-    return '';
-  }
-}
+import {orderhistory} from '../../Api/Cart';
 
-export default class OrderHistory extends Component {
+import HeaderDrawer from '../HeaderDrawer';
+
+class OrderHistory extends Component {
   constructor(props) {
     super(props);
     this.state = {arrOrder: []};
   }
   async onGetOrder() {
-    const token = await getTokenStorage();
-    return fetch(`${host}order_history.php`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({token}),
-    })
+    const token = this.props.user.token;
+    return orderhistory(token)
       .then(res => res.json())
       .catch(err => console.log('ERR in send order: ', err));
   }
@@ -52,28 +26,11 @@ export default class OrderHistory extends Component {
       .then(newArr => this.setState({arrOrder: newArr}))
       .catch(err => console.log(err));
   }
-  goBackToMain() {
-    const {navigation} = this.props;
-    navigation.goBack();
-  }
   render() {
-    const {
-      wrapper,
-      header,
-      headerTitle,
-      backIconStyle,
-      body,
-      orderRow,
-    } = styles;
+    const {wrapper, body, orderRow} = styles;
     return (
       <View style={wrapper}>
-        <View style={header}>
-          <View />
-          <Text style={headerTitle}>Order History</Text>
-          <TouchableOpacity onPress={this.goBackToMain.bind(this)}>
-            <Image source={backSpecial} style={backIconStyle} />
-          </TouchableOpacity>
-        </View>
+        <HeaderDrawer {...this.props} title="Order History" />
         <View style={body}>
           <FlatList
             data={this.state.arrOrder}
@@ -136,18 +93,8 @@ export default class OrderHistory extends Component {
 const {width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  wrapper: {flex: 1, backgroundColor: '#fff'},
-  header: {
-    flex: 1,
-    backgroundColor: '#2ABB9C',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-  },
-  headerTitle: {fontFamily: 'Avenir', color: '#fff', fontSize: 20},
-  backIconStyle: {width: 30, height: 30},
-  body: {flex: 10, backgroundColor: '#F6F6F6'},
+  wrapper: {flex: 1, backgroundColor: COLOR.BACKGROUND},
+  body: {flex: 12, backgroundColor: '#F6F6F6'},
   orderRow: {
     height: width / 3,
     backgroundColor: '#FFF',
@@ -160,3 +107,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
 });
+
+export default connect(
+  state => {
+    return {
+      user: state.user,
+    };
+  },
+  {},
+)(OrderHistory);

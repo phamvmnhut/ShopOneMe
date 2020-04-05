@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Image, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 //import MapView from 'react-native-maps';
 
-import phoneIcon from '../../../media/phone.png';
-import mailIcon from '../../../media/mail.png';
-import messageIcon from '../../../media/message.png';
-import locationIcon from '../../../media/location.png';
+import {COLOR} from '../../../Constants/color';
+
+import Icon from 'react-native-vector-icons/Ionicons';
 
 class Contact extends Component {
   render() {
@@ -14,31 +13,28 @@ class Contact extends Component {
       wrapper,
       infoContainer,
       rowInfoContainer,
-      imageStyle,
       infoText,
     } = styles;
     return (
       <View style={wrapper}>
         <View style={mapContainer}>
-          <View style={{width: width - 20, height: 250}}>
-            <Text>Map ne</Text>
-          </View>
+          <Text>Map ne</Text>
         </View>
         <View style={infoContainer}>
           <View style={rowInfoContainer}>
-            <Image source={locationIcon} style={imageStyle} />
+            <Icon name="ios-disc" size={35} />
             <Text style={infoText}>Hung Nhuong, Giong Trom, Ben Tre</Text>
           </View>
           <View style={rowInfoContainer}>
-            <Image source={phoneIcon} style={imageStyle} />
-            <Text style={infoText}>(+84) 03 3847 3427</Text>
+            <Icon name="md-call" size={35} />
+            <Text style={infoText}>(+84) 3 3847 3427</Text>
           </View>
           <View style={rowInfoContainer}>
-            <Image source={mailIcon} style={imageStyle} />
+            <Icon name="md-mail" size={35} />
             <Text style={infoText}>phamvmnhut@gmail.com</Text>
           </View>
           <View style={[rowInfoContainer, {borderBottomWidth: 0}]}>
-            <Image source={messageIcon} style={imageStyle} />
+            <Icon name="ios-send" size={35} />
             <Text style={infoText}>phamvmnhut@gmail.com</Text>
           </View>
         </View>
@@ -49,7 +45,10 @@ class Contact extends Component {
 
 const {width} = Dimensions.get('window');
 const styles = StyleSheet.create({
-  wrapper: {flex: 1, backgroundColor: '#F6F6F6'},
+  wrapper: {
+    flex: 1,
+    backgroundColor: COLOR.BACKGROUND,
+  },
   mapStyle: {
     width: width - 40,
     height: 230,
@@ -86,10 +85,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderColor: '#D6D6D6',
-  },
-  imageStyle: {
-    width: 30,
-    height: 30,
   },
   infoText: {
     fontFamily: 'Avenir',

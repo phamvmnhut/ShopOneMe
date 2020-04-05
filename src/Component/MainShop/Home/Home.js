@@ -1,14 +1,15 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
 import {connect} from 'react-redux';
 
 import Collection from './Collection';
 import TopProduct from './TopProduct';
-//import Category from './Collection';
 import Search from './Search';
 
 import Header from '../Header';
+
+import {COLOR} from '../../../Constants/color';
 
 class Home extends Component {
   constructor(props) {
@@ -30,32 +31,41 @@ class Home extends Component {
   }
   render() {
     const {data} = this.props.data;
-    console.log('render in home');
-    return (
+    console.log('------RENDER IN HOME COMPONENT--------');
+    const {container} = styles;
+    const HomeJSX = (
       <View style={{flex: 1}}>
+        <Collection type={data.type} navigation={this.props.navigation} />
+        <TopProduct product={data.product} navigation={this.props.navigation} />
+      </View>
+    );
+    const MainView = !this.isSearching ? (
+      HomeJSX
+    ) : (
+      <Search
+        keysearch={this.state.search}
+        navigation={this.props.navigation}
+      />
+    );
+    return (
+      <View style={container}>
         <Header
           navigation={this.props.navigation}
           onSearch={this.onSearch.bind(this)}
           offSearch={this.offSearch.bind(this)}
         />
-        {!this.isSearching ? (
-          <View style={{flex: 1}}>
-            <Collection type={data.type} navigation={this.props.navigation} />
-            <TopProduct
-              product={data.product}
-              navigation={this.props.navigation}
-            />
-          </View>
-        ) : (
-          <Search
-            keysearch={this.state.search}
-            navigation={this.props.navigation}
-          />
-        )}
+        {MainView}
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLOR.BACKGROUND,
+  },
+});
 
 export default connect(
   state => {

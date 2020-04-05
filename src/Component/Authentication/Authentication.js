@@ -1,38 +1,26 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  Dimensions,
-  StyleSheet,
-  Button,
-  Alert,
-} from 'react-native';
+import {View, StyleSheet, Alert} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {Input, Button, ButtonGroup} from 'react-native-elements';
 
-import {host} from '../../Api/hostname';
+import {login, register} from '../../Api/User';
+import {COLOR} from '../../Constants/color';
 
 import {connect} from 'react-redux';
 
-const {height} = Dimensions.get('window');
-
-import icon_logo from '../../media/ic_logo.png';
-import icon_back from '../../media/back_white.png';
+import HeaderDrawer from '../HeaderDrawer';
 
 class Authentication extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoginScreen: true,
+      selectedIndex: 0,
       name: '',
       email: '',
       password: '',
+      repass: '',
     };
-  }
-  GotoBackMain() {
-    const {navigation} = this.props;
-    navigation.goBack();
+    this.updateIndex = this.updateIndex.bind(this);
   }
   LoginClick() {
     const {email, password} = this.state;
@@ -40,19 +28,12 @@ class Authentication extends Component {
       email,
       password,
     };
-    fetch(`${host}login.php`, {
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    login(data)
       .then(res => res.json())
       .then(res => {
         if (res != 'SAI_THONG_TIN_DANG_NHAP') {
           Alert.alert('Login secceed');
-          this.GotoBackMain();
+          this.props.navigation.goBack();
           this.props.onLogin(res);
         } else {
           //change if res err sent
@@ -60,23 +41,23 @@ class Authentication extends Component {
           this.setState({password: ''});
         }
       })
-      .catch(err => Alert.alert('Err in Login'));
+      .catch(err => {
+        console.log('Err in Login: ', err);
+        Alert.alert('Err in Login');
+      });
   }
   RegisterClick() {
-    const {name, email, password} = this.state;
+    const {name, email, password, repass} = this.state;
+    if (password !== repass) {
+      Alert.alert('Re pass is not same Pass');
+      return;
+    }
     const data = {
       name,
       email,
       password,
     };
-    fetch(`${host}register.php`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    register(data)
       .then(res => res.text())
       .then(res => {
         if (res == 'THANH_CONG') {
@@ -88,88 +69,83 @@ class Authentication extends Component {
       })
       .catch(err => Alert.alert('Err in register'));
   }
+  updateIndex(selectedIndex) {
+    this.setState({selectedIndex});
+  }
   render() {
-    const {
-      wrapper,
-      row1,
-      info,
-      txtinput,
-      row2,
-      iconstyle,
-      tittle,
-      btnS,
-      buttonClick,
-    } = styles;
+    const {wrapper, info, row2} = styles;
     const SignInJSX = (
       <View style={info}>
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập EMAIL"
+        <Input
+          label="Your Email Address"
+          placeholder="example@address.com"
+          leftIcon={<Icon name="envelope-o" size={25} color="black" />}
           onChangeText={email => this.setState({email})}
         />
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập MẬT KHẨU"
+        <Input
+          secureTextEntry={true}
+          label="Your Password"
+          placeholder="Password"
+          leftIcon={<Icon name="asterisk" size={25} color="black" />}
           onChangeText={password => this.setState({password})}
         />
-        <TouchableOpacity
+        <Button
+          type="outline"
+          title="LOGIN NOW"
+          buttonStyle={{marginTop: 10}}
           onPress={this.LoginClick.bind(this)}
-          style={buttonClick}>
-          <Text>Đăng nhập</Text>
-        </TouchableOpacity>
+        />
       </View>
     );
     const SignUpJSX = (
       <View style={info}>
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập tên TÀI KHOẢN"
-          onChangeText={name => this.setState({name})}
-        />
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập email"
+        <Input
+          label="Your Email Address"
+          placeholder="example@address.com"
+          leftIcon={<Icon name="envelope-o" size={25} color="black" />}
           onChangeText={email => this.setState({email})}
         />
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập mật khẩu"
+        <Input
+          label="Your Account's name"
+          placeholder="My Name"
+          leftIcon={<Icon name="user" size={25} color="black" />}
+          onChangeText={name => this.setState({name})}
+        />
+        <Input
+          secureTextEntry={true}
+          label="Your Password"
+          placeholder="Password"
+          leftIcon={<Icon name="asterisk" size={25} color="black" />}
           onChangeText={password => this.setState({password})}
         />
-        <TextInput
-          style={txtinput}
-          placeholder="Nhập lại mật khẩu"
-          onChangeText={password => this.setState({password})}
+        <Input
+          secureTextEntry={true}
+          label="Re Your Password"
+          placeholder="Password"
+          leftIcon={<Icon name="asterisk" size={25} color="black" />}
+          onChangeText={repass => this.setState({repass})}
         />
-        <TouchableOpacity
+        <Button
+          type="outline"
+          title="REGISTER"
+          buttonStyle={{marginTop: 10}}
           onPress={this.RegisterClick.bind(this)}
-          style={buttonClick}>
-          <Text>Đăng ký</Text>
-        </TouchableOpacity>
+        />
       </View>
     );
-    const Info = this.state.isLoginScreen ? SignInJSX : SignUpJSX;
+    const Info = this.state.selectedIndex == 0 ? SignInJSX : SignUpJSX;
 
+    const buttons = ['Login', 'Register'];
+    const {selectedIndex} = this.state;
     return (
       <View style={wrapper}>
-        <View style={row1}>
-          <TouchableOpacity onPress={this.GotoBackMain.bind(this)}>
-            <Image style={iconstyle} source={icon_back} />
-          </TouchableOpacity>
-          <Text style={tittle}> Trang đăng nhập và đăng kí </Text>
-          <Image style={iconstyle} source={icon_logo} />
-        </View>
+        <HeaderDrawer {...this.props} title="Login / Resgister" />
         {Info}
         <View style={row2}>
-          <Button
-            title="Sign In"
-            style={btnS}
-            onPress={() => this.setState({isLoginScreen: true})}
-          />
-          <Button
-            title="Sign Up"
-            style={btnS}
-            onPress={() => this.setState({isLoginScreen: false})}
+          <ButtonGroup
+            onPress={this.updateIndex}
+            selectedIndex={selectedIndex}
+            buttons={buttons}
           />
         </View>
       </View>
@@ -180,22 +156,12 @@ class Authentication extends Component {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#26e03f',
-    padding: 10,
-    justifyContent: 'space-around',
-  },
-  tittle: {
-    fontSize: 20,
-  },
-  row1: {
-    flexDirection: 'row',
-    height: height / 10,
-    justifyContent: 'space-between',
-    borderBottomColor: '#f5ad64',
-    borderBottomWidth: 2,
+    backgroundColor: COLOR.BACKGROUND,
   },
   info: {
-    height: 200,
+    flex: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   txtinput: {
     backgroundColor: '#b2e69c',
@@ -212,11 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   row2: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderTopColor: '#f5ad64',
-    borderTopWidth: 2,
-    padding: 3,
+    flex: 1,
   },
   iconstyle: {
     width: 25,

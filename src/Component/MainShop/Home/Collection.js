@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
+
+import {ActivityIndicator} from 'react-native';
+import {Image} from 'react-native-elements';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
@@ -24,17 +26,17 @@ export default class Collection extends Component {
   render() {
     const {type} = this.props;
     const ranType = Math.floor(Math.random() * type.length);
-    //console.log('Random Type in Colection component: ', ranType);
-    const {wrapper, textstyle, imagestyle} = styles;
+    const {wrapper, title, textstyle, imagestyle} = styles;
     return (
       <View style={wrapper}>
-        <View>
-          <Text style={textstyle}> COLLECTION </Text>
+        <View style={title}>
+          <Text style={textstyle}>COLLECTION </Text>
         </View>
         <TouchableOpacity onPress={() => this.gotoListPro(type[ranType].id)}>
           <Image
             source={{uri: `${host}images/type/${type[ranType].image}`}}
             style={imagestyle}
+            PlaceholderContent={<ActivityIndicator />}
           />
         </TouchableOpacity>
       </View>
@@ -44,20 +46,24 @@ export default class Collection extends Component {
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: height / 4,
+    height: height / 4 + 5,
     backgroundColor: '#d9e8d8',
     margin: 10,
     padding: 10,
     paddingTop: 0,
+    paddingBottom: 0,
     shadowColor: '#c1cfc0',
     shadowOffset: {height: 3, width: 0},
     shadowOpacity: 0.2,
+  },
+  title: {
+    margin: 5,
   },
   textstyle: {
     fontSize: 20,
   },
   imagestyle: {
     height: (height / 4) * (3 / 4),
-    width: 300,
+    width: '100%',
   },
 });

@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Image,
   StyleSheet,
   TextInput,
   Alert,
@@ -11,9 +10,10 @@ import {
 
 import {connect} from 'react-redux';
 
-import backSpecial from '../../media/back_white.png';
+import HeaderDrawer from '../HeaderDrawer';
 
-import {host} from '../../Api/hostname';
+import {COLOR} from '../../Constants/color';
+import {changeinfo} from '../../Api/User';
 
 class ChangeInfo extends Component {
   constructor(props) {
@@ -24,10 +24,6 @@ class ChangeInfo extends Component {
       txtPhone: 'phone',
     };
   }
-  GotoBackMain() {
-    const {navigation} = this.props;
-    navigation.goBack();
-  }
   onClickChancefo() {
     const {txtName, txtAddress, txtPhone} = this.state;
     const token = this.props.user.token;
@@ -37,21 +33,17 @@ class ChangeInfo extends Component {
       address: txtAddress,
       phone: txtPhone,
     };
-    fetch(`${host}change_info.php`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    changeinfo(data)
       .then(res => res.json())
       .then(user => {
-        this.props.onChangeInfor(user);
         Alert.alert('ChangeInfo Succeeded');
-        this.GotoBackMain();
+        this.props.navigation.goBack();
+        this.props.onChangeInfor(user);
       })
-      .catch(err => Alert.alert('Err in ChangeInfo'));
+      .catch(err => {
+        console.log('Err in ChangeInfo: ', err);
+        Alert.alert('Err in ChangeInfo');
+      });
   }
   componentDidMount() {
     const {name, address, phone} = this.props.user.user;
@@ -62,26 +54,11 @@ class ChangeInfo extends Component {
     });
   }
   render() {
-    const {
-      wrapper,
-      header,
-      headerTitle,
-      backIconStyle,
-      body,
-      signInContainer,
-      signInTextStyle,
-      textInput,
-    } = styles;
+    const {wrapper, body, signInContainer, signInTextStyle, textInput} = styles;
     const {txtName, txtAddress, txtPhone} = this.state;
     return (
       <View style={wrapper}>
-        <View style={header}>
-          <View />
-          <Text style={headerTitle}>User Infomation</Text>
-          <TouchableOpacity onPress={this.GotoBackMain.bind(this)}>
-            <Image source={backSpecial} style={backIconStyle} />
-          </TouchableOpacity>
-        </View>
+        <HeaderDrawer {...this.props} title="Change Info" />
         <View style={body}>
           <TextInput
             style={textInput}
@@ -103,6 +80,7 @@ class ChangeInfo extends Component {
             style={textInput}
             placeholder="Enter your phone number"
             autoCapitalize="none"
+            keyboardType="numeric"
             value={txtPhone}
             onChangeText={text => this.setState({txtPhone: text})}
             underlineColorAndroid="transparent"
@@ -121,26 +99,9 @@ class ChangeInfo extends Component {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLOR.BACKGROUND,
   },
-  header: {
-    flex: 1,
-    backgroundColor: '#2ABB9C',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-  },
-  headerTitle: {
-    fontFamily: 'Avenir',
-    color: '#fff',
-    fontSize: 20,
-  },
-  backIconStyle: {
-    width: 30,
-    height: 30,
-  },
-  body: {flex: 10, backgroundColor: '#F6F6F6', justifyContent: 'center'},
+  body: {flex: 12, backgroundColor: '#F6F6F6', justifyContent: 'center'},
   textInput: {
     height: 45,
     marginHorizontal: 20,
@@ -184,7 +145,7 @@ export default connect(
       onChangeInfor: data => {
         dispatch({
           type: 'CHANCE_INFO',
-          user: data,
+          payload: data,
         });
       },
     };

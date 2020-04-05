@@ -1,6 +1,6 @@
 const COLOR = {
-  SIDER: '#3df533',
-  HEADER: '#26e03f',
+  BACKGROUND: '#D6D6D6',
+  HEADER: '#2ABB9C',
 };
 
 export {COLOR};

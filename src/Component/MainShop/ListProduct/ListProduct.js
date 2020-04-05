@@ -3,31 +3,61 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
-  Dimensions,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
+import {ListItem} from 'react-native-elements';
 
 import {host} from '../../../Api/hostname';
+import {COLOR} from '../../../Constants/color';
 
-const {height} = Dimensions.get('screen');
+import Icon from 'react-native-vector-icons/Ionicons';
 
-import back from '../../../media/backList.png';
-
-function fetchUser(typeID, page) {
-  this.setState({loading: false});
-  fetch(`${host}product_by_type.php?id_type=${typeID}&page=${page}`)
-    .then(res => res.json())
-    .then(res => {
-      let listData = this.state.data;
-      let data = listData
-        .concat(res.data.items) //concate list with response
-        .this.setState({loading: false, data: data});
-    })
-    .catch(error => {
-      this.setState({loading: false, error: 'Something just went wrong'});
-    });
+class Item extends Component {
+  gotoProduct(pro) {
+    this.props.navigation.push('Product', {pro: pro});
+  }
+  render() {
+    const {item} = this.props;
+    const {subtitleView} = styles;
+    return (
+      <ListItem
+        title={item.name.toUpperCase()}
+        titleStyle={{fontSize: 22}}
+        leftAvatar={{
+          size: 'xlarge',
+          rounded: false,
+          source: {
+            uri: `${host}images/product/${item.images[0]}`,
+          },
+          title: item.name,
+          renderPlaceholderContent: <ActivityIndicator />,
+        }}
+        subtitle={
+          <View style={subtitleView}>
+            <Text style={styles.ratingText}>PRICE: {item.price}</Text>
+            <Text style={styles.ratingText}>Meterial: {item.material}</Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text>Color: </Text>
+              <View
+                style={{
+                  height: 15,
+                  width: 15,
+                  backgroundColor: `${item.color.toLowerCase()}`,
+                  borderRadius: 15,
+                  marginLeft: 10,
+                }}
+              />
+            </View>
+          </View>
+        }
+        bottomDivider
+        chevron
+        onPress={() => this.gotoProduct(item)}
+      />
+    );
+  }
 }
 
 export default class ListProduct extends Component {
@@ -67,9 +97,6 @@ export default class ListProduct extends Component {
   goBack() {
     this.props.navigation.pop();
   }
-  gotoProduct(pro) {
-    this.props.navigation.push('Product', {pro: pro});
-  }
   componentDidMount() {
     const typeID = this.props.navigation.state.params.colecID;
     fetch(`${host}product_by_type.php?id_type=${typeID}&page=${this.page}`)
@@ -79,46 +106,25 @@ export default class ListProduct extends Component {
       });
   }
   render() {
-    const {
-      container,
-      header,
-      txtHeader,
-      picBack,
-      wapper,
-      pic,
-      txtwapper,
-    } = styles;
+    const {container, wrapper, header} = styles;
     return (
       <View style={container}>
-        <View style={header}>
-          <TouchableOpacity onPress={this.goBack.bind(this)}>
-            <Image source={back} style={picBack} />
-          </TouchableOpacity>
-          <Text style={txtHeader}>List Product</Text>
+        <View style={wrapper}>
+          <View style={header}>
+            <TouchableOpacity onPress={this.goBack.bind(this)}>
+              <Icon name="md-arrow-round-back" size={25} />
+            </TouchableOpacity>
+            <Text style={{fontSize: 20}}>List Product</Text>
+            <Text />
+          </View>
+          <FlatList
+            data={this.state.data}
+            renderItem={({item}) => <Item item={item} {...this.props} />}
+            keyExtractor={item => item.id.toString()}
+            onEndReachedThreshold={0.4}
+            onEndReached={this.handleLoadMore.bind(this)}
+          />
         </View>
-        <FlatList
-          data={this.state.data}
-          renderItem={({item}) => (
-            <View style={wapper}>
-              <Image
-                source={{uri: `${host}images/product/${item.images[0]}`}}
-                style={pic}
-              />
-              <View style={txtwapper}>
-                <Text>{item.name}</Text>
-                <Text>{item.price}</Text>
-                <Text>Kieu dang: {item.material}</Text>
-                <Text>Mau sac {item.color}</Text>
-                <TouchableOpacity onPress={() => this.gotoProduct(item)}>
-                  <Text>Detail</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-          keyExtractor={item => item.id.toString()}
-          onEndReachedThreshold={0.4}
-          onEndReached={this.handleLoadMore.bind(this)}
-        />
       </View>
     );
   }
@@ -127,34 +133,25 @@ const styles = StyleSheet.create({
   container: {
     padding: 3,
     flex: 1,
+    backgroundColor: COLOR.BACKGROUND,
+  },
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
+    marginHorizontal: 10,
+    marginVertical: 10,
   },
   header: {
-    height: height / 10,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  txtHeader: {
-    fontSize: 20,
-  },
-  picBack: {
-    height: 30,
-    width: 30,
-  },
-  wapper: {
-    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
-    borderColor: '#55ed6f',
-    borderWidth: 3,
-    marginBottom: 5,
+    paddingHorizontal: 15,
+    paddingTop: 20,
   },
-  pic: {
-    height: height / 6,
-    width: height / 6,
-  },
-  txtwapper: {
-    borderLeftColor: '#7ae6a5',
-    borderLeftWidth: 2,
-    paddingLeft: 5,
-    margin: 3,
+  subtitleView: {
+    marginTop: 10,
   },
 });

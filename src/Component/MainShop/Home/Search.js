@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import {host} from '../../../Api/hostname';
+import {search} from '../../../Api/Cart';
 
 function toTitleCase(str) {
   return str.replace(
@@ -31,7 +32,7 @@ export default class Search extends Component {
   }
   componentDidMount() {
     const key = this.props.keysearch;
-    fetch(`${host}search.php?key=${key}`)
+    search(key)
       .then(res => res.json())
       .then(res => {
         if (res.length == 0) {

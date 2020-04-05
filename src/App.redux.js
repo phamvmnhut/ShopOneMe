@@ -180,12 +180,11 @@ const userReducer = (state = userdefault, action) => {
         token: '',
       };
     case 'CHANCE_INFO':
-      saveUser(action.user);
+      const userdetail = {user: action.payload, token: state.token};
+      saveUser(userdetail);
       return {
         ...state,
-        isLogin: false,
-        user: {},
-        token: '',
+        user: action.payload,
       };
     case 'LOGIN_FAIL':
       return userdefault;

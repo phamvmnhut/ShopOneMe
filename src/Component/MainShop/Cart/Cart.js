@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 
 import {connect} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
 
+import {COLOR} from '../../../Constants/color';
+import {ordercard} from '../../../Api/Cart';
 import {host} from '../../../Api/hostname';
 
 function toTitleCase(str) {
@@ -21,52 +23,10 @@ function toTitleCase(str) {
     txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
   );
 }
-async function getTokenStorage() {
-  try {
-    const value = await AsyncStorage.getItem('@token');
-    if (value !== null) {
-      return value;
-    }
-    return '';
-  } catch (error) {
-    // Error retrieving data
-    console.log('Err in getToken: ', error);
-    return '';
-  }
-}
 
-class Cart extends Component {
-  gotoDetail(pro) {
-    this.props.navigation.push('Product', {pro: pro});
-  }
-  async onSendOrder(cart) {
-    const token = await getTokenStorage();
-    const cartDetail = cart.map(e => ({id: e.pro.id, quantity: e.total}));
-    fetch(`${host}cart.php`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({token, arrayDetail: cartDetail}),
-    })
-      .then(res => res.text())
-      .then(res => {
-        if (res != 'THEM_THANH_CONG') throw 'Add fail';
-        this.props.sendOrder();
-        Alert.alert('Order Succeeded, check your Order in ORDER HISTORY');
-      })
-      .catch(err => {
-        console.log('ERR in send order: ', err);
-        Alert.alert('Order fail, check login user');
-      });
-  }
+class Item extends Component {
   render() {
     const {
-      main,
-      checkoutButton,
-      checkoutTitle,
-      wrapper,
       product,
       mainRight,
       productController,
@@ -76,10 +36,75 @@ class Cart extends Component {
       numberOfProduct,
       txtShowDetail,
       showDetailContainer,
-      Total,
     } = styles;
-
+    const pro = this.props.item.pro;
     const {inc_pro, dec_pro, remove_pro} = this.props;
+    return (
+      <View style={product}>
+        <Image
+          source={{uri: `${host}images/product/${pro.images[0]}`}}
+          style={productImage}
+        />
+        <View style={[mainRight]}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+            }}>
+            <Text style={txtName}>{toTitleCase(pro.name)}</Text>
+            <TouchableOpacity onPress={() => remove_pro(pro.id)}>
+              <Icon name="ios-close" size={25} />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <Text style={txtPrice}>{pro.price}$</Text>
+          </View>
+          <View style={productController}>
+            <View style={numberOfProduct}>
+              <TouchableOpacity onPress={() => inc_pro(pro.id)}>
+                <Text>+</Text>
+              </TouchableOpacity>
+              <Text>{this.props.item.total}</Text>
+              <TouchableOpacity onPress={() => dec_pro(pro.id)}>
+                <Text>-</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={showDetailContainer}
+              onPress={() => this.gotoDetail(pro)}>
+              <Text style={txtShowDetail}>SHOW DETAILS</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+class Cart extends Component {
+  gotoDetail(pro) {
+    this.props.navigation.push('Product', {pro: pro});
+  }
+  async onSendOrder(cart) {
+    const token = this.props.user.token;
+    const cartDetail = cart.map(e => ({id: e.pro.id, quantity: e.total}));
+    const data = {token, arrayDetail: cartDetail};
+    ordercard(data)
+      .then(res => res.text())
+      .then(res => {
+        if (res != 'THEM_THANH_CONG') {
+          throw 'Add fail';
+        }
+        this.props.sendOrder();
+        Alert.alert('Order Succeeded, check your Order in ORDER HISTORY');
+      })
+      .catch(err => {
+        console.log('ERR in send order: ', err);
+        Alert.alert('Order fail, check login user');
+      });
+  }
+  render() {
+    const {main, checkoutButton, checkoutTitle, wrapper, Total} = styles;
     const {cart} = this.props.cart;
     const total = cart
       ? cart.reduce((sum, cur) => sum + cur.pro.price * cur.total, 0)
@@ -89,50 +114,7 @@ class Cart extends Component {
         <View style={main}>
           <FlatList
             data={cart}
-            renderItem={({item}) => {
-              const pro = item.pro;
-              return (
-                <View style={product}>
-                  <Image
-                    source={{uri: `${host}images/product/${pro.images[0]}`}}
-                    style={productImage}
-                  />
-                  <View style={[mainRight]}>
-                    <View
-                      style={{
-                        justifyContent: 'space-between',
-                        flexDirection: 'row',
-                      }}>
-                      <Text style={txtName}>{toTitleCase(pro.name)}</Text>
-                      <TouchableOpacity onPress={() => remove_pro(pro.id)}>
-                        <Text style={{fontFamily: 'Avenir', color: '#969696'}}>
-                          X
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View>
-                      <Text style={txtPrice}>{pro.price}$</Text>
-                    </View>
-                    <View style={productController}>
-                      <View style={numberOfProduct}>
-                        <TouchableOpacity onPress={() => inc_pro(pro.id)}>
-                          <Text>+</Text>
-                        </TouchableOpacity>
-                        <Text>{item.total}</Text>
-                        <TouchableOpacity onPress={() => dec_pro(pro.id)}>
-                          <Text>-</Text>
-                        </TouchableOpacity>
-                      </View>
-                      <TouchableOpacity
-                        style={showDetailContainer}
-                        onPress={() => this.gotoDetail(pro)}>
-                        <Text style={txtShowDetail}>SHOW DETAILS</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              );
-            }}
+            renderItem={({item}) => <Item item={item} {...this.props} />}
             keyExtractor={item => item.pro.id.toString()}
           />
         </View>
@@ -148,20 +130,20 @@ class Cart extends Component {
   }
 }
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const imageWidth = width / 4;
 const imageHeight = (imageWidth * 452) / 361;
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#DFDFDF',
+    backgroundColor: COLOR.BACKGROUND,
   },
   checkoutButton: {
     height: 50,
     margin: 10,
     marginTop: 0,
-    backgroundColor: '#2ABB9C',
+    backgroundColor: COLOR.HEADER,
     borderRadius: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -239,6 +221,7 @@ const styles = StyleSheet.create({
 export default connect(
   state => {
     return {
+      user: state.user,
       cart: state.cart,
     };
   },

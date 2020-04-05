@@ -3,16 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 
-import {connect} from 'react-redux';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 
-const back = require('../../../media/backList.png');
-const cart = require('../../../media/cartfull.png');
+import {connect} from 'react-redux';
+import {Image} from 'react-native-elements';
 
 import {host} from '../../../Api/hostname';
 
@@ -26,7 +27,6 @@ class ProductDetail extends Component {
       cardStyle,
       header,
       footer,
-      backStyle,
       imageContainer,
       cartStyle,
       textBlack,
@@ -41,10 +41,7 @@ class ProductDetail extends Component {
       txtColor,
     } = styles;
     const {
-      id,
       name,
-      idType,
-      nameType,
       price,
       color,
       material,
@@ -58,7 +55,7 @@ class ProductDetail extends Component {
     const addCart =
       checkCart == -1 ? (
         <TouchableOpacity onPress={() => addPro(pro)}>
-          <Image style={cartStyle} source={cart} />
+          <Icon name="add-shopping-cart" size={25} />
         </TouchableOpacity>
       ) : (
         <TouchableOpacity onPress={() => inc_pro(pro.id)}>
@@ -70,7 +67,7 @@ class ProductDetail extends Component {
         <View style={cardStyle}>
           <View style={header}>
             <TouchableOpacity onPress={this.goBack.bind(this)}>
-              <Image style={backStyle} source={back} />
+              <IonIcon name="md-arrow-round-back" size={25} />
             </TouchableOpacity>
             {addCart}
           </View>
@@ -79,16 +76,14 @@ class ProductDetail extends Component {
               style={{flexDirection: 'row', padding: 10, height: swiperHeight}}
               horizontal>
               <Image
-                source={{
-                  uri: `${host}images/product/${images[0]}`,
-                }}
+                source={{uri: `${host}images/product/${images[0]}`}}
                 style={productImageStyle}
+                PlaceholderContent={<ActivityIndicator />}
               />
               <Image
-                source={{
-                  uri: `${host}images/product/${images[1]}`,
-                }}
+                source={{uri: `${host}images/product/${images[1]}`}}
                 style={productImageStyle}
+                PlaceholderContent={<ActivityIndicator />}
               />
             </ScrollView>
           </View>
@@ -154,14 +149,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
     paddingTop: 20,
+    alignItems: 'center',
   },
   cartStyle: {
-    width: 25,
-    height: 25,
-  },
-  backStyle: {
-    width: 25,
-    height: 25,
+    fontSize: 19,
   },
   productStyle: {
     width: width / 2,

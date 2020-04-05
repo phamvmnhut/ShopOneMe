@@ -3,15 +3,16 @@ import {
   View,
   Text,
   SafeAreaView,
-  Image,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
+  Alert,
+  Linking,
 } from 'react-native';
+import {Avatar, Button, SocialIcon} from 'react-native-elements';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import {connect} from 'react-redux';
 
-import {IMAGE} from '../Constants/icon';
 import {COLOR} from '../Constants/color';
 
 class MenuMain extends Component {
@@ -36,77 +37,109 @@ class MenuMain extends Component {
     this.props.onLogout();
   }
   render() {
-    const {container, header, TextGo, button} = style;
+    const {container, header, footer} = style;
     const {isLogin} = this.props.user;
-    const Logout = (
-      <View>
-        <View style={header}>
-          <Image
-            source={IMAGE.ICON_PROFILE}
-            style={{height: 120, width: 120, borderRadius: 60}}
-          />
-        </View>
-        <Text>{this.props.user.user.name}</Text>
-        <ScrollView>
-          <TouchableOpacity onPress={this.goMain.bind(this)} style={button}>
-            <Text style={TextGo}>Go Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.goOrder.bind(this)} style={button}>
-            <Text style={TextGo}>Go to Order History</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.goChance.bind(this)} style={button}>
-            <Text style={TextGo}>Go to Chance Info</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={this.LogoutClick.bind(this)}
-            style={button}>
-            <Text style={TextGo}>LOGOUT</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    );
+    const info = this.props.user.user;
     const Login = (
       <View>
         <View style={header}>
-          <Image
-            source={IMAGE.ICON_PROFILE}
-            style={{height: 120, width: 120, borderRadius: 60}}
+          <Avatar
+            rounded
+            title="G"
+            showEditButton
+            size="large"
+            onEditPress={() => Alert.alert('Please, Login User')}
           />
+          <Text>Gest</Text>
         </View>
         <ScrollView>
-          <TouchableOpacity onPress={this.goMain.bind(this)} style={button}>
-            <Text style={TextGo}>Go Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.goAuth.bind(this)} style={button}>
-            <Text style={TextGo}>LOGIN NOW</Text>
-          </TouchableOpacity>
+          <Button
+            type="clear"
+            buttonStyle={{height: 50}}
+            icon={<Icon name="md-log-in" size={25} />}
+            title=" LOGIN NOW"
+            onPress={this.goAuth.bind(this)}
+          />
         </ScrollView>
       </View>
     );
-    const LoginOrLogout = isLogin ? Logout : Login;
-    return <SafeAreaView style={container}>{LoginOrLogout}</SafeAreaView>;
+    const LoginOrLogout = isLogin ? (
+      <View>
+        <View style={header}>
+          <Avatar
+            rounded
+            title={info.name.charAt(0)}
+            showEditButton
+            size="large"
+            onEditPress={() => Alert.alert('This future is developing')}
+          />
+          <Text>{this.props.user.user.name}</Text>
+        </View>
+        <ScrollView>
+          <Button
+            type="clear"
+            buttonStyle={{height: 50}}
+            icon={<Icon name="ios-albums" size={25} />}
+            title=" Order History"
+            onPress={this.goOrder.bind(this)}
+          />
+          <Button
+            type="clear"
+            buttonStyle={{height: 50}}
+            icon={<Icon name="ios-swap" size={25} />}
+            title=" Chance Info"
+            onPress={this.goChance.bind(this)}
+          />
+          <Button
+            type="clear"
+            buttonStyle={{height: 50}}
+            icon={<Icon name="md-log-out" size={25} />}
+            title=" LOGOUT"
+            onPress={this.LogoutClick.bind(this)}
+          />
+        </ScrollView>
+      </View>
+    ) : (
+      Login
+    );
+    return (
+      <SafeAreaView style={container}>
+        {LoginOrLogout}
+        <View style={footer}>
+          <SocialIcon
+            type="github"
+            title="Code on Github"
+            onPress={() => {
+              Linking.openURL('https://github.com/phamvmnhut/ShopOneMe');
+            }}
+          />
+          <SocialIcon
+            type="facebook"
+            title="FaceBook phamvmnhut"
+            onPress={() => {
+              Linking.openURL('https://www.facebook.com/phamvmnhut');
+            }}
+          />
+        </View>
+      </SafeAreaView>
+    );
   }
 }
 const style = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLOR.SIDER,
+    backgroundColor: COLOR.BACKGROUND,
+    justifyContent: 'space-between',
+    padding: 5,
   },
   header: {
     height: 150,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  TextGo: {
-    paddingLeft: 10,
-    borderColor: 'black',
-    borderWidth: 2,
-    marginBottom: 5,
-    borderRadius: 5,
-  },
-  button: {
-    marginLeft: 30,
-    marginRight: 30,
+  footer: {
+    marginBottom: 20,
+    flexDirection: 'row',
   },
 });
 

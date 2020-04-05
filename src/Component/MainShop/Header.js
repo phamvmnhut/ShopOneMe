@@ -9,11 +9,11 @@ import {
   StyleSheet,
 } from 'react-native';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+
 const {height} = Dimensions.get('window');
 import {COLOR} from '../../Constants/color';
-
-import icon_menu from '../../media/ic_menu.png';
-import icon_logo from '../../media/ic_logo.png';
+import {IMAGE} from '../../Constants/icon';
 
 export default class Header extends Component {
   constructor(props) {
@@ -32,21 +32,22 @@ export default class Header extends Component {
     this.props.offSearch();
   }
   render() {
-    const {wrapper, row1, tittle, iconstyle, textinputstyle} = styles;
+    const {wrapper, row1, row2, tittle, iconstyle, textinputstyle} = styles;
     const {openDrawer} = this.props.navigation;
     return (
       <View style={wrapper}>
         <View style={row1}>
           <TouchableOpacity onPress={openDrawer}>
-            <Image style={iconstyle} source={icon_menu} />
+            <Icon name="md-menu" size={35} />
           </TouchableOpacity>
-          <Text style={tittle}> Shop do cua tui </Text>
-          <Image style={iconstyle} source={icon_logo} />
+          <Text style={tittle}>Shop One Me</Text>
+          <Image style={iconstyle} source={IMAGE.ICON_LOGO} />
         </View>
-        <View style={row1}>
+        <View style={row2}>
           <TextInput
             style={textinputstyle}
             placeholder="Nhap thu can tim"
+            returnKeyType="search"
             onChangeText={text => this.setState({search: text})}
             value={this.state.search}
             onSubmitEditing={this.onSearch.bind(this)}
@@ -73,10 +74,16 @@ const styles = StyleSheet.create({
   row1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  row2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   iconstyle: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
   },
   textinputstyle: {
     height: height / 23,
